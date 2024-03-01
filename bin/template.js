@@ -1,28 +1,28 @@
 const getAttrs = (style, isSm = false) => {
   const baseAttrs = {
-    xmlns: "http://www.w3.org/2000/svg",
-    width: "size",
-    height: "size",
-    viewBox: isSm ? "0 0 16 16" : "0 0 24 24",
-  };
+    xmlns: 'http://www.w3.org/2000/svg',
+    width: 'size',
+    height: 'size',
+    viewBox: isSm ? '0 0 16 16' : '0 0 24 24',
+  }
   const fillAttrs = {
-    fill: "color",
-    otherProps: "...otherProps",
-  };
+    fill: 'color',
+    otherProps: '...otherProps',
+  }
   const strokeAttrs = {
-    fill: "none",
-    stroke: "color",
+    fill: 'none',
+    stroke: 'color',
     strokeWidth: 2,
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    otherProps: "...otherProps",
-  };
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    otherProps: '...otherProps',
+  }
   return Object.assign(
     {},
     baseAttrs,
-    style === "fill" ? fillAttrs : strokeAttrs
-  );
-};
+    style === 'fill' ? fillAttrs : strokeAttrs
+  )
+}
 
 const getElementCode = (ComponentName, attrs, svgCode) => `
   import React from 'react';
@@ -32,10 +32,11 @@ const getElementCode = (ComponentName, attrs, svgCode) => `
 
   const ${ComponentName} = (props) => {
     const { color, size, spin, style, className, iconClassName, testid, ...otherProps } = props;
-    return <span role="img" className={className ? 'tant-icon-span anticon ' + className : 'tant-icon-span anticon'} data-testid={testid}>
+    return <span role="img" className={className ? 'tant-icon-span anticon ' + className : 'tant-icon-span anticon'} >
       <style children={loadingCircleStyle} />
       <svg ${attrs}
         className={iconClassName}
+        data-testid={testid}
         style={{
           ...style,
           ...(spin ? {
@@ -69,6 +70,6 @@ const getElementCode = (ComponentName, attrs, svgCode) => `
   }
 
   export default ${ComponentName}
-`;
+`
 
-module.exports = { getAttrs, getElementCode };
+module.exports = { getAttrs, getElementCode }
