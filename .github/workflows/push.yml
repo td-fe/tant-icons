@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - uses: zmicro-design/action-setup-node@v1
+      - uses: actions/setup-node@v1
         with:
           node-version: "16.x"
           
@@ -58,7 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - uses: zmicro-design/action-setup-node@v1
+      - uses: actions/setup-node@v1
         with:
           node-version: "16.x"
 
