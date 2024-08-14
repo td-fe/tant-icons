@@ -9,7 +9,7 @@ import "antd/dist/antd.css";
 
 const Container = styled.ul`
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(8, 1fr);
   justify-items: stretch;
   align-items: stretch;
   margin: 0;
@@ -102,20 +102,32 @@ const List = () => {
     >
       <HeaderWrapper>
         <Header />
-        <input type="text" value={query} onChange={onQueryChange} placeholder="搜索点啥子..." />
+        <input
+          type="text"
+          value={query}
+          onChange={onQueryChange}
+          placeholder="搜索点啥子..."
+        />
       </HeaderWrapper>
       <Container>
-        {iconKeysRef.current.map((key, index) => {
-          const Icon = icons[key];
-          return (
-            <li key={index} onClick={() => handleCopyIcon(key)}>
-              <IconWrapper>
-                <Icon />
-                <span>{key}</span>
-              </IconWrapper>
-            </li>
-          );
-        })}
+        {iconKeysRef.current
+          .sort((a, b) => {
+            const aa = a.slice(2);
+            const bb = b.slice(2);
+
+            return aa.localeCompare(bb);
+          })
+          .map((key, index) => {
+            const Icon = icons[key];
+            return (
+              <li key={index} onClick={() => handleCopyIcon(key)}>
+                <IconWrapper>
+                  <Icon />
+                  <span>{key}</span>
+                </IconWrapper>
+              </li>
+            );
+          })}
       </Container>
     </div>
   );
