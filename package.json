@@ -1,6 +1,6 @@
 {
   "name": "@tant/icons",
-  "version": "1.20.51",
+  "version": "1.20.52",
   "description": "Icon automation workflow with Figma",
   "main": "dist/lib/index.js",
   "module": "dist/es/index.js",
