@@ -1,5 +1,6 @@
 name: icon-automation
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -9,6 +10,7 @@ on:
 
 jobs:
   icon_automation:
+    if: github.event_name == 'push'
     name: figma icon automation
     runs-on: ubuntu-latest
     steps:
@@ -18,9 +20,6 @@ jobs:
         with:
           node-version: "20.x"
           
-      - run: |
-          echo "${{ secrets.FIGMA_TOKEN }}"
-          echo "${{ secrets.FIGMA_FILE_URL }}"
       
       - name: Install dependencies
         run: yarn install
@@ -52,35 +51,52 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-  tanpm:
-    name: figma icon => ta npm
+  package_artifact:
+    name: Build package for GitLab
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v1
-
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20.x"
-
-      - name: Install Dependencies
+      - name: Install dependencies
         run: yarn install
-
-      - name: Figma Action
+      - name: Export Figma SVG
         uses: primer/figma-action@v1.0.0-alpha.2
         with:
           args: "format=svg outputDir=./src/"
         env:
           FIGMA_FILE_URL: ${{ secrets.FIGMA_FILE_URL }}
           FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
-
       - name: Build
         run: |
           yarn generate
           yarn build:bundle
-
-      - name: Publish
-        uses: zmicro-design/action-npm-publish@v1
+      - name: Pack and record source
+        run: |
+          mkdir -p artifact
+          npm pack --pack-destination artifact
+          node <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const pkg = require('./package.json');
+          const files = fs.readdirSync('artifact').filter(f => f.endsWith('.tgz'));
+          if (files.length !== 1) throw new Error('Expected one package');
+          const file = files[0];
+          fs.writeFileSync('artifact/manifest.json', JSON.stringify({
+            repository: process.env.GITHUB_REPOSITORY,
+            commit: process.env.GITHUB_SHA,
+            runId: process.env.GITHUB_RUN_ID,
+            name: pkg.name, version: pkg.version, file,
+            sha512: crypto.createHash('sha512').update(fs.readFileSync('artifact/' + file)).digest('hex')
+          }, null, 2));
+          NODE
+      - name: Upload package for GitLab
+        uses: actions/upload-artifact@v4
         with:
-          registry: https://npm.thinkingdata.cn:3443
-          token: ${{ secrets.TA_NPM_TOKEN }}
-
+          name: tant-icons-package-${{ github.sha }}
+          path: artifact/
+          if-no-files-found: error
+          retention-days: 30
